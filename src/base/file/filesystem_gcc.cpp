@@ -644,13 +644,15 @@ bool CFileSystem::StartMonitoringDirectory(const char* dir)
 	if (pthread_create(&tid, NULL, ThreadFunc, const_cast<char*>(dir)) < 0)
 		return false;
 	pthread_detach(tid);
-	return false;
+	return true;
 }
 
 void CFileSystem::StopMonitoringDirectory()
 {
+	pthread_mutex_lock(&s_mutex);
 	s_bThreadFinish = true;
 	s_ModifiedFiles.clear();
+	pthread_mutex_unlock(&s_mutex);
 }
 
 void CFileSystem::GetModifiedFiles(behaviac::vector<behaviac::string>& modifiedFiles)
